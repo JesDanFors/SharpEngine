@@ -42,6 +42,43 @@ namespace SharpEngine
                 glVertexAttribPointer(0,3,GL_FLOAT,false,3 * sizeof(float), NULL);
             }
             glEnableVertexAttribArray(0);
+            
+            //Creating the shader
+            string vertexShaderSource = @"
+#version 330 core
+in vec3 pos;
+
+void main()
+{
+    gl_Position = vec4(pos.x, pos.y, pos.z, 1.0);
+}
+";
+            string fragmentShaderSource = @"
+#version 330 core
+out vec4 result;
+
+void main()
+{
+    result = vec4(1, 0, 0, 1);
+}
+";
+            
+            //create vertex shader
+            var vertexShader = glCreateShader(GL_VERTEX_SHADER);
+            glShaderSource(vertexShader, vertexShaderSource);
+            glCompileShader(vertexShader);
+            
+            //Create fragment shader
+            var fragmentShader = glCreateShader(GL_VERTEX_SHADER);
+            glShaderSource(fragmentShader, fragmentShaderSource);
+            glCompileShader(fragmentShader);
+            
+            //Create shader program - rendering pipeline
+            var program = glCreateProgram();
+            glAttachShader(program, vertexShader);
+            glAttachShader(program, fragmentShader);
+            glLinkProgram(program);
+            glUseProgram(program);
 
             //Engine rendering loop
             while (!Glfw.WindowShouldClose(window))
