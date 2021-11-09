@@ -8,11 +8,19 @@ namespace SharpEngine
     {
         static void Main(string[] args)
         {
+            //initialization and hints
             Glfw.Init();
+            Glfw.WindowHint(Hint.ClientApi, ClientApi.OpenGL);
+            Glfw.WindowHint(Hint.ContextVersionMajor, 3);
+            Glfw.WindowHint(Hint.ContextVersionMinor, 3);
+            Glfw.WindowHint(Hint.Decorated, true);
+            Glfw.WindowHint(Hint.OpenglProfile, Profile.Core);
+            Glfw.WindowHint(Hint.Doublebuffer, false);
+            
+            //Create the window
             var window = Glfw.CreateWindow(1024, 768, "SharpEngine", Monitor.None, Window.None);
             Glfw.MakeContextCurrent(window);
             Import(Glfw.GetProcAddress);
-
             float[] vertices = new float[]
             {
                 -.5f, -.5f, 0f,
@@ -20,6 +28,7 @@ namespace SharpEngine
                 0f, .5f, 0f
             };
 
+            //Load the vertices into a buffer
             var vertexArray = glGenVertexArray();
             var vertexBuffer = glGenBuffer();
             glBindVertexArray(vertexArray);
@@ -34,11 +43,12 @@ namespace SharpEngine
             }
             glEnableVertexAttribArray(0);
 
+            //Engine rendering loop
             while (!Glfw.WindowShouldClose(window))
             {
                 Glfw.PollEvents(); // react to widow changes.
                 glDrawArrays(GL_TRIANGLES, 0, 3);
-                Glfw.SwapBuffers(window);
+                glFlush();
             }
         }
     }
