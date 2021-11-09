@@ -11,6 +11,7 @@ namespace SharpEngine
             Glfw.Init();
             var window = Glfw.CreateWindow(1024, 768, "SharpEngine", Monitor.None, Window.None);
             Glfw.MakeContextCurrent(window);
+            Import(Glfw.GetProcAddress);
 
             float[] vertices = new float[]
             {
