@@ -27,7 +27,9 @@ namespace SharpEngine
                 glClear(GL_COLOR_BUFFER_BIT);
                 glDrawArrays(GL_TRIANGLES, 0, 3);
                 glFlush();
-                vertices[3] += 0.001f;
+                vertices[0] += 0.00001f;
+                vertices[3] += 0.00001f;
+                vertices[6] += 0.00001f;
                 UpdateTriangleBuffer();
 
             }
