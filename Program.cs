@@ -8,9 +8,13 @@ namespace SharpEngine
     class Program
     {
         static float[] vertices = {
-            -.5f, -.5f, 0f,
-            .5f, -.5f, 0f,
-            0f, .5f, 0f
+            -.1f, -.1f, 0f,
+            .1f, -.1f, 0f,
+            0f, .1f, 0f,
+            
+            .4f, .4f, 0f,
+            .6f, .4f, 0f,
+            .5f, .6f, 0f
         };
 
         private const int vertexX = 0;
@@ -29,10 +33,8 @@ namespace SharpEngine
                 Glfw.PollEvents(); // react to window changes (position etc.)
                 ClearScreen();
                 Render();
-                for (int i = vertexY; i < vertices.Length; i+= vertexSize)
-                {
-                    vertices[i] -= 0.00001f;
-                }
+                //manipulation goes in here
+                
                 UpdateTriangleBuffer();
 
             }
