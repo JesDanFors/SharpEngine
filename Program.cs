@@ -12,6 +12,10 @@ namespace SharpEngine
             .5f, -.5f, 0f,
             0f, .5f, 0f
         };
+
+        private const int vertexX = 0;
+        private const int vertexY = 1;
+        private const int vertexSize = 3;
         static void Main(string[] args) {
             
             var window = Window();
@@ -23,18 +27,27 @@ namespace SharpEngine
             // engine rendering loop
             while (!Glfw.WindowShouldClose(window)) {
                 Glfw.PollEvents(); // react to window changes (position etc.)
-                glClearColor(0,0,0,1);
-                glClear(GL_COLOR_BUFFER_BIT);
-                glDrawArrays(GL_TRIANGLES, 0, 3);
-                glFlush();
-                vertices[0] -= 0.00001f;
-                vertices[1] -= 0.00001f;
-                vertices[3] += 0.00001f;
-                vertices[4] -= 0.00001f;
-                vertices[7] += 0.00001f;
+                ClearScreen();
+                Render();
+                for (int i = vertexY; i < vertices.Length; i+= vertexSize)
+                {
+                    vertices[i] -= 0.00001f;
+                }
                 UpdateTriangleBuffer();
 
             }
+        }
+
+        private static void ClearScreen()
+        {
+            glClearColor(0.0f, 0.5f, 0.5f, 1);
+            glClear(GL_COLOR_BUFFER_BIT);
+        }
+
+        private static void Render()
+        {
+            glDrawArrays(GL_TRIANGLES, 0, vertices.Length/vertexSize);
+            glFlush();
         }
 
         private static unsafe void LoadTriangleIntoBuffer()
@@ -45,7 +58,7 @@ namespace SharpEngine
             glBindVertexArray(vertexArray);
             glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
             UpdateTriangleBuffer();
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, 3 * sizeof(float), NULL);
+            glVertexAttribPointer(0, vertexSize, GL_FLOAT, false, vertexSize * sizeof(float), NULL);
             glEnableVertexAttribArray(0);
         }
 
@@ -61,12 +74,12 @@ namespace SharpEngine
         {
             // create vertex shader
             var vertexShader = glCreateShader(GL_VERTEX_SHADER);
-            glShaderSource(vertexShader, File.ReadAllText("shaders/red-triangle.vert"));
+            glShaderSource(vertexShader, File.ReadAllText("shaders/screen-coordinates.vert"));
             glCompileShader(vertexShader);
 
             // create fragment shader
             var fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-            glShaderSource(fragmentShader, File.ReadAllText("shaders/red-triangle.frag"));
+            glShaderSource(fragmentShader, File.ReadAllText("shaders/red.frag"));
             glCompileShader(fragmentShader);
 
             // create shader program - rendering pipeline
