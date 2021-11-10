@@ -22,6 +22,19 @@ namespace SharpEngine
             this.y = y;
             this.z = 0;
         }
+
+        public static Vector operator *(Vector v, float f)
+        {
+            return new Vector(v.x * f, v.y * f, v.z * f);
+        }
+
+        public static Vector operator +(Vector v, float f)
+        {
+            return new Vector(v.x + f, v.y + f, v.z + f);
+        }
+        
+        // -
+        // /
         
     }
     class Program
@@ -33,8 +46,6 @@ namespace SharpEngine
             new Vector(.4f, .4f),
             new Vector(.6f, .4f),
             new Vector(.5f, .6f)
-            
-           
         };
 
         private const int vertexX = 0;
@@ -54,9 +65,15 @@ namespace SharpEngine
                 ClearScreen();
                 Render(window);
                 //manipulation goes in here
-                for (int i = 0; i < vertices.Length; i++)
+                for (int i = vertexX; i < vertices.Length; i++)
                 {
-                    vertices[i].x += 0.0001f;
+                    if (vertices[i].x <= .8f)
+                    {
+                        vertices[i].x += .001f;
+                    } else if (vertices[i].x >= .8f)
+                    {
+                        vertices[i].x -= .001f;
+                    }
                 }
                 UpdateTriangleBuffer();
 
