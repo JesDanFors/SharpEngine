@@ -5,16 +5,36 @@ using static OpenGL.Gl;
 
 namespace SharpEngine
 {
+    struct Vector
+    {
+        public float x, y, z;
+
+        public Vector(float x, float y, float z)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+
+        public Vector(float x, float y)
+        {
+            this.x = x;
+            this.y = y;
+            this.z = 0;
+        }
+        
+    }
     class Program
     {
-        static float[] vertices = {
-            -.1f, -.1f, 0f,
-            .1f, -.1f, 0f,
-            0f, .1f, 0f,
+        static Vector[] vertices = new Vector[]{
+            new Vector(-.1f, -.1f),
+            new Vector(.1f, -.1f),
+            new Vector(0f, .1f),
+            new Vector(.4f, .4f),
+            new Vector(.6f, .4f),
+            new Vector(.5f, .6f)
             
-            .4f, .4f, 0f,
-            .6f, .4f, 0f,
-            .5f, .6f, 0f
+           
         };
 
         private const int vertexX = 0;
@@ -32,9 +52,12 @@ namespace SharpEngine
             while (!Glfw.WindowShouldClose(window)) {
                 Glfw.PollEvents(); // react to window changes (position etc.)
                 ClearScreen();
-                Render();
+                Render(window);
                 //manipulation goes in here
-                
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    vertices[i].x += 0.0001f;
+                }
                 UpdateTriangleBuffer();
 
             }
@@ -46,10 +69,10 @@ namespace SharpEngine
             glClear(GL_COLOR_BUFFER_BIT);
         }
 
-        private static void Render()
+        private static void Render(Window window)
         {
-            glDrawArrays(GL_TRIANGLES, 0, vertices.Length/vertexSize);
-            glFlush();
+            glDrawArrays(GL_TRIANGLES, 0, vertices.Length);
+            Glfw.SwapBuffers(window);
         }
 
         private static unsafe void LoadTriangleIntoBuffer()
@@ -66,9 +89,9 @@ namespace SharpEngine
 
         static unsafe void UpdateTriangleBuffer()
         {
-            fixed (float* vertex = &vertices[0])
+            fixed (Vector* vertex = &vertices[0])
             {
-                glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.Length, vertex, GL_STATIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(Vector) * vertices.Length, vertex, GL_STATIC_DRAW);
             }
         }
 
@@ -102,7 +125,7 @@ namespace SharpEngine
             Glfw.WindowHint(Hint.Decorated, true);
             Glfw.WindowHint(Hint.OpenglProfile, Profile.Core);
             Glfw.WindowHint(Hint.OpenglForwardCompatible, Constants.True);
-            Glfw.WindowHint(Hint.Doublebuffer, Constants.False);
+            Glfw.WindowHint(Hint.Doublebuffer, Constants.True);
 
             // create and launch a window
             var window = Glfw.CreateWindow(1024, 768, "SharpEngine", Monitor.None, GLFW.Window.None);
