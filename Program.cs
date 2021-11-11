@@ -27,10 +27,17 @@ namespace SharpEngine
         {
             return new Vector(v.x * f, v.y * f, v.z * f);
         }
+        public static Vector operator /(Vector v, float f)
+        {
+            return new Vector(v.x / f, v.y / f, v.z / f);
+        }
 
         public static Vector operator +(Vector v, Vector u)
         {
             return new Vector(v.x + u.x, v.y + u.y, v.z + u.z);
+        }public static Vector operator -(Vector v, Vector u)
+        {
+            return new Vector(v.x - u.x, v.y - u.y, v.z - u.z);
         }
         public static Vector Max(Vector a, Vector b)
         {
@@ -48,9 +55,6 @@ namespace SharpEngine
             };
             return c;
         }
-        
-        // -
-        // /
     }
     class Program
     {
@@ -86,7 +90,27 @@ namespace SharpEngine
                 {
                     vertices[i] += direction;
                 }
-
+                
+                //min
+                var min = vertices[0];
+                for (int i = 1; i < vertices.Length; i++)
+                {
+                    min = Vector.Min(min, vertices[i]);
+                }
+                //max
+                var max = vertices[0];
+                for (int i = 1; i < vertices.Length; i++)
+                {
+                    max = Vector.Max(max, vertices[i]);
+                }
+                //find position
+                var center = (min + max) / 2; 
+                //move to center
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    vertices[i] -= center;
+                }
+                //scale
                 for (int i = 0; i < vertices.Length; i++)
                 {
                     vertices[i] *= multiplier;
@@ -95,11 +119,19 @@ namespace SharpEngine
                 if (scale <= .5f)
                 {
                     multiplier = 1.001f;
+                }if (scale >= 1f)
+                {
+                    multiplier = .999f;
+                }
+                //Move it back
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    vertices[i] += center;
                 }
 
                 for (int i = 0; i < vertices.Length; i++)
                 {
-                    if (vertices[i].x >= 1 || vertices[i].x <= -1)
+                    if (vertices[i].x >= 1 && direction.x > 0 || vertices[i].x <= -1 && direction.x < 0)
                     {
                         direction.x *= -1;
                         break;
@@ -107,7 +139,7 @@ namespace SharpEngine
                 }
                 for (int i = 0; i < vertices.Length; i++)
                 {
-                    if (vertices[i].y >= 1 || vertices[i].y <= -1)
+                    if (vertices[i].y >= 1 && direction.y > 0 || vertices[i].y <= -1 && direction.y < 0)
                     {
                         direction.y *= -1;
                         break;
