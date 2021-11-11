@@ -28,14 +28,29 @@ namespace SharpEngine
             return new Vector(v.x * f, v.y * f, v.z * f);
         }
 
-        public static Vector operator +(Vector v, float f)
+        public static Vector operator +(Vector v, Vector u)
         {
-            return new Vector(v.x + f, v.y + f, v.z + f);
+            return new Vector(v.x + u.x, v.y + u.y, v.z + u.z);
+        }
+        public static Vector Max(Vector a, Vector b)
+        {
+            Vector c = new Vector();
+            c.x = MathF.Max(a.x, b.x);
+            c.y = MathF.Max(a.y, b.y);
+            return c;
+        }
+        public static Vector Min(Vector a, Vector b)
+        {
+            Vector c = new Vector(0,0)
+            {
+                x = MathF.Min(a.x, b.x),
+                y = MathF.Min(a.y, b.y)
+            };
+            return c;
         }
         
         // -
         // /
-        
     }
     class Program
     {
@@ -43,16 +58,15 @@ namespace SharpEngine
             new Vector(-.1f, -.1f),
             new Vector(.1f, -.1f),
             new Vector(0f, .1f),
-            new Vector(.4f, .4f),
-            new Vector(.6f, .4f),
-            new Vector(.5f, .6f)
+            //new Vector(.4f, .4f),
+            //new Vector(.6f, .4f),
+            //new Vector(.5f, .6f)
         };
 
         private const int vertexX = 0;
         private const int vertexY = 1;
         private const int vertexSize = 3;
         static void Main(string[] args) {
-            
             var window = Window();
 
             LoadTriangleIntoBuffer();
@@ -60,6 +74,9 @@ namespace SharpEngine
             CreateShaderProgram();
 
             // engine rendering loop
+            var direction = new Vector(0.003f, 0.003f);
+            var multiplier = .999f;
+            float scale = 1f;
             while (!Glfw.WindowShouldClose(window)) {
                 Glfw.PollEvents(); // react to window changes (position etc.)
                 ClearScreen();
@@ -67,12 +84,33 @@ namespace SharpEngine
                 //manipulation goes in here
                 for (int i = vertexX; i < vertices.Length; i++)
                 {
-                    if (vertices[i].x <= .8f)
+                    vertices[i] += direction;
+                }
+
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    vertices[i] *= multiplier;
+                }
+                scale *= multiplier;
+                if (scale <= .5f)
+                {
+                    multiplier = 1.001f;
+                }
+
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    if (vertices[i].x >= 1 || vertices[i].x <= -1)
                     {
-                        vertices[i].x += .001f;
-                    } else if (vertices[i].x >= .8f)
+                        direction.x *= -1;
+                        break;
+                    }
+                }
+                for (int i = 0; i < vertices.Length; i++)
+                {
+                    if (vertices[i].y >= 1 || vertices[i].y <= -1)
                     {
-                        vertices[i].x -= .001f;
+                        direction.y *= -1;
+                        break;
                     }
                 }
                 UpdateTriangleBuffer();
@@ -145,7 +183,7 @@ namespace SharpEngine
             Glfw.WindowHint(Hint.Doublebuffer, Constants.True);
 
             // create and launch a window
-            var window = Glfw.CreateWindow(1024, 768, "SharpEngine", Monitor.None, GLFW.Window.None);
+            var window = Glfw.CreateWindow(512, 768/2, "SharpEngine", Monitor.None, GLFW.Window.None);
             Glfw.MakeContextCurrent(window);
             Import(Glfw.GetProcAddress);
             return window;
