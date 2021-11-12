@@ -6,24 +6,10 @@ namespace SharpEngine
 {
     class Program
     {
-        static Triangle triangle = new Triangle (
-            new Vertex[] {
-                //triangle 1
-                new Vertex(new Vector(-.4f, -.4f), Color.Red),
-                new Vertex(new Vector(.4f, -.4f), Color.Green),
-                new Vertex(new Vector(0f, .6f), Color.Blue),
-            }
-        );
-
-        private static Triangle triangle2 = new Triangle(
-            new Vertex[]
-            {
-                new Vertex(new Vector(.4f, .4f), Color.Blue),
-                new Vertex(new Vector(.8f, .4f), Color.Red),
-                new Vertex(new Vector(.6f, .8f), Color.Green)
-            });
-
-        private static Triangle[] triangles = new Triangle[] {triangle, triangle2};
+        private static Shape triangle = new Triangle(.2f, .2f, new Vector(0, 0));
+        private static Shape triangle2 = new Triangle(.2f, .2f, new Vector(0, 0));
+        
+        private static Shape[] triangles = new Shape[] {triangle, triangle2};
         
         static void Main(string[] args) {
             //screen rendering
