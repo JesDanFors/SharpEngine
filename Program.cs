@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Runtime.InteropServices;
 using GLFW;
 using static OpenGL.Gl;
 
@@ -7,59 +6,51 @@ namespace SharpEngine
 {
     class Program
     {
-
         static Triangle triangle = new Triangle (
             new Vertex[] {
-                new Vertex(new Vector(0f, 0f), Color.Red),
-                new Vertex(new Vector(1f, 0f), Color.Green),
-                new Vertex(new Vector(0f, 1f), Color.Blue)
+                //triangle 1
+                new Vertex(new Vector(-.4f, -.4f), Color.Red),
+                new Vertex(new Vector(.4f, -.4f), Color.Green),
+                new Vertex(new Vector(0f, .6f), Color.Blue),
             }
         );
+
+        private static Triangle triangle2 = new Triangle(
+            new Vertex[]
+            {
+                new Vertex(new Vector(.4f, .4f), Color.Blue),
+                new Vertex(new Vector(.8f, .4f), Color.Red),
+                new Vertex(new Vector(.6f, .8f), Color.Green)
+            });
+
+        private static Triangle[] triangles = new Triangle[] {triangle, triangle2};
         
         static void Main(string[] args) {
-            
+            //screen rendering
             var window = CreateWindow();
-
-            LoadTriangleIntoBuffer();
-
             CreateShaderProgram();
 
             // engine rendering loop
-            var direction = new Vector(0.0003f, 0.0003f);
-            var multiplier = 0.999f;
+            var direction = new Vector(0.003f, 0.003f);
+            var multiplier = 0.99f;
             while (!Glfw.WindowShouldClose(window)) {
-                Glfw.PollEvents(); // react to window changes (position etc.)
-                ClearScreen();
-                Render(window);
-                
-                triangle.Scale(multiplier);
-                
-                // 2. Keep track of the Scale, so we can reverse it
-                if (triangle.CurrentScale <= 0.5f) {
-                    multiplier = 1.001f;
-                }
-                if (triangle.CurrentScale >= 1f) {
-                    multiplier = 0.999f;
-                }
+                foreach (var triangle in triangles)
+                {
+                    Glfw.PollEvents(); // react to window changes (position etc.)
+                    ClearScreen();
+                    Render(window);
 
-                // 3. Move the Triangle by its Direction
-                triangle.Move(direction);
-                
-                // 4. Check the X-Bounds of the Screen
-                if (triangle.GetMaxBounds().x >= 1 && direction.x > 0 || triangle.GetMinBounds().x <= -1 && direction.x < 0) {
-                    direction.x *= -1;
-                }
-                
-                // 5. Check the Y-Bounds of the Screen
-                if (triangle.GetMaxBounds().y >= 1 && direction.y > 0 || triangle.GetMinBounds().y <= -1 && direction.y < 0) {
-                    direction.y *= -1;
-                }
+                    triangle.Scale(multiplier);
 
+                    multiplier = triangle.CurrenScalar(multiplier);
+                    direction = triangle.MoveDirection(direction);
+                }
             }
         }
 
         static void Render(Window window) {
-            triangle.Render();
+            triangle.Render(triangle.LoadTriangleIntoBuffer());
+            triangle2.Render(triangle.LoadTriangleIntoBuffer());
             Glfw.SwapBuffers(window);
         }
 
@@ -86,18 +77,6 @@ namespace SharpEngine
             glLinkProgram(program);
             glUseProgram(program);
         }
-
-        static unsafe void LoadTriangleIntoBuffer() {
-            var vertexArray = glGenVertexArray();
-            var vertexBuffer = glGenBuffer();
-            glBindVertexArray(vertexArray);
-            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-            glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), nameof(Vertex.position)));
-            glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), nameof(Vertex.color)));
-            glEnableVertexAttribArray(0);
-            glEnableVertexAttribArray(1);
-        }
-
         static Window CreateWindow() {
             // initialize and configure
             Glfw.Init();
@@ -110,7 +89,7 @@ namespace SharpEngine
             Glfw.WindowHint(Hint.Doublebuffer, Constants.True);
 
             // create and launch a window
-            var window = Glfw.CreateWindow(1024, 768, "SharpEngine", Monitor.None, Window.None);
+            var window = Glfw.CreateWindow(1360, 740, "SharpEngine", Monitor.None, Window.None);
             Glfw.MakeContextCurrent(window);
             Import(Glfw.GetProcAddress);
             return window;

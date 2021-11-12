@@ -1,5 +1,7 @@
 ﻿using System.Numerics;
+using System.Runtime.InteropServices;
 using OpenGL;
+using static OpenGL.Gl;
 
 namespace SharpEngine {
     public class Triangle {
@@ -11,6 +13,7 @@ namespace SharpEngine {
         public Triangle(Vertex[] vertices) {
             this.vertices = vertices;
             this.CurrentScale = 1f;
+            Render(LoadTriangleIntoBuffer());
         }
 
         public Vector GetMinBounds() {
@@ -55,11 +58,63 @@ namespace SharpEngine {
             }
         }
 
-        public unsafe void Render() {
+        public unsafe void Render(uint vertexArray)
+        {
+            glBindVertexArray(vertexArray);
+            
             fixed (Vertex* vertex = &this.vertices[0]) {
-                Gl.glBufferData(Gl.GL_ARRAY_BUFFER, sizeof(Vertex) * this.vertices.Length, vertex, Gl.GL_DYNAMIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this.vertices.Length, vertex, Gl.GL_DYNAMIC_DRAW);
             }
-            Gl.glDrawArrays(Gl.GL_TRIANGLES, 0, this.vertices.Length);
+            glDrawArrays(GL_TRIANGLES, 0, this.vertices.Length);
+        }
+
+        public unsafe uint LoadTriangleIntoBuffer()
+        {
+            var vertexArray = glGenVertexArray();
+            var vertexBuffer = glGenBuffer();
+            glBindVertexArray(vertexArray);
+            glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+            glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), nameof(Vertex.position)));
+            glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), nameof(Vertex.color)));
+            glEnableVertexAttribArray(0);
+            glEnableVertexAttribArray(1);
+            return vertexArray;
+        }
+
+        public Vector MoveDirection(Vector direction)
+        {
+            //Move the Triangle by its Direction
+            Move(direction);
+
+            //Check the X-Bounds of the Screen
+            if (GetMaxBounds().x >= 1 && direction.x > 0 ||
+                GetMinBounds().x <= -1 && direction.x < 0)
+            {
+                direction.x *= -1;
+            }
+
+            //Check the Y-Bounds of the Screen
+            if (GetMaxBounds().y >= 1 && direction.y > 0 ||
+                GetMinBounds().y <= -1 && direction.y < 0)
+            {
+                direction.y *= -1;
+            }
+            return direction;
+        }
+
+        public float CurrenScalar(float multiplier)
+        {
+            if (CurrentScale <= 0.5f)
+            {
+                multiplier = 1.01f;
+            }
+
+            if (CurrentScale >= 1f)
+            {
+                multiplier = 0.99f;
+            }
+
+            return multiplier;
         }
     }
 }
