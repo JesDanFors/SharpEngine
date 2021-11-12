@@ -6,8 +6,7 @@ using static OpenGL.Gl;
 
 namespace SharpEngine {
     public class Shape {
-            
-        Vertex[] vertices;
+        protected Vertex[] vertices;
             
         public float CurrentScale { get; private set; }
         //public float MoveDirection { get; private set; }
@@ -17,12 +16,6 @@ namespace SharpEngine {
             this.CurrentScale = 1f;
             LoadTriangleIntoBuffer();
         }
-
-        public Shape(float width, float height, Vector position)
-        {
-            
-        }
-
         public Vector GetMinBounds() {
             var min = this.vertices[0].position;
             for (var i = 1; i < this.vertices.Length; i++) {

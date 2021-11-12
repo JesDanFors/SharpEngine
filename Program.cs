@@ -6,8 +6,8 @@ namespace SharpEngine
 {
     class Program
     {
-        private static Shape triangle = new Triangle(.2f, .2f, new Vector(0, 0));
-        private static Shape triangle2 = new Triangle(.2f, .2f, new Vector(0, 0));
+        private static Shape triangle = new Triangle(.2f, .2f, new Vector(-.4f, 0));
+        private static Shape triangle2 = new Triangle(.2f, .2f, new Vector(.4f, 0));
         
         private static Shape[] triangles = new Shape[] {triangle, triangle2};
         
