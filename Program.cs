@@ -33,6 +33,7 @@ namespace SharpEngine
             // engine rendering loop
             var direction = new Vector(0.003f, 0.003f);
             var multiplier = 0.99f;
+            var rotate = .5f;
             while (!Glfw.WindowShouldClose(window)) {
                 foreach (var triangle in triangles)
                 {
@@ -41,16 +42,17 @@ namespace SharpEngine
                     Render(window);
 
                     triangle.Scale(multiplier);
-
+                    triangle.Rotate(rotate);
                     multiplier = triangle.CurrenScalar(multiplier);
-                    direction = triangle.MoveDirection(direction);
+                    direction = triangle.MoveDirect(direction);
+                    
                 }
             }
         }
 
         static void Render(Window window) {
-            triangle.Render(triangle.LoadTriangleIntoBuffer());
-            triangle2.Render(triangle.LoadTriangleIntoBuffer());
+            triangle.Render();
+            triangle2.Render();
             Glfw.SwapBuffers(window);
         }
 

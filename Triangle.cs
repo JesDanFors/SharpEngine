@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using OpenGL;
 using static OpenGL.Gl;
@@ -9,11 +10,12 @@ namespace SharpEngine {
         Vertex[] vertices;
             
         public float CurrentScale { get; private set; }
+        public float MoveDirection { get; private set; }
             
         public Triangle(Vertex[] vertices) {
             this.vertices = vertices;
             this.CurrentScale = 1f;
-            Render(LoadTriangleIntoBuffer());
+            LoadTriangleIntoBuffer();
         }
 
         public Vector GetMinBounds() {
@@ -58,17 +60,15 @@ namespace SharpEngine {
             }
         }
 
-        public unsafe void Render(uint vertexArray)
+        public unsafe void Render()
         {
-            glBindVertexArray(vertexArray);
-            
             fixed (Vertex* vertex = &this.vertices[0]) {
                 glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this.vertices.Length, vertex, Gl.GL_DYNAMIC_DRAW);
             }
             glDrawArrays(GL_TRIANGLES, 0, this.vertices.Length);
         }
 
-        public unsafe uint LoadTriangleIntoBuffer()
+        public unsafe void LoadTriangleIntoBuffer()
         {
             var vertexArray = glGenVertexArray();
             var vertexBuffer = glGenBuffer();
@@ -78,28 +78,27 @@ namespace SharpEngine {
             glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), nameof(Vertex.color)));
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
-            return vertexArray;
         }
 
-        public Vector MoveDirection(Vector direction)
+        public Vector MoveDirect(Vector MoveDirection)
         {
             //Move the Triangle by its Direction
-            Move(direction);
+            Move(MoveDirection);
 
             //Check the X-Bounds of the Screen
-            if (GetMaxBounds().x >= 1 && direction.x > 0 ||
-                GetMinBounds().x <= -1 && direction.x < 0)
+            if (GetMaxBounds().x >= 1 && MoveDirection.x > 0 ||
+                GetMinBounds().x <= -1 && MoveDirection.x < 0)
             {
-                direction.x *= -1;
+                MoveDirection.x *= -1;
             }
 
             //Check the Y-Bounds of the Screen
-            if (GetMaxBounds().y >= 1 && direction.y > 0 ||
-                GetMinBounds().y <= -1 && direction.y < 0)
+            if (GetMaxBounds().y >= 1 && MoveDirection.y > 0 ||
+                GetMinBounds().y <= -1 && MoveDirection.y < 0)
             {
-                direction.y *= -1;
+                MoveDirection.y *= -1;
             }
-            return direction;
+            return MoveDirection;
         }
 
         public float CurrenScalar(float multiplier)
@@ -115,6 +114,26 @@ namespace SharpEngine {
             }
 
             return multiplier;
+        }
+
+        public void Rotate(float degree)
+        {
+            var center = GetCenter();
+            Move(center * -1);
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                var currentAngle = MathF.Atan2(vertices[i].position.y, vertices[i].position.x);
+                var currentMagnitude = MathF.Sqrt(MathF.Pow(vertices[i].position.x, 2) + MathF.Pow(vertices[i].position.y, 2));
+                var newX = MathF.Cos(currentAngle + GetRadians(degree)) * currentMagnitude;
+                var newY = MathF.Sin(currentAngle + GetRadians(degree)) * currentMagnitude;
+                vertices[i].position = new Vector(newX, newY);
+            }
+            Move(center);
+        }
+
+        private float GetRadians(float angle)
+        {
+            return angle * (MathF.PI / 180f);
         }
     }
 }
