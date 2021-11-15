@@ -1,86 +1,74 @@
-﻿using System.IO;
-using GLFW;
-using static OpenGL.Gl;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SharpEngine
 {
-    class Program
-    {
-        private static Shape triangle = new Triangle(.2f, .2f, new Vector(-.4f, 0));
-        private static Shape triangle2 = new Triangle(.2f, .2f, new Vector(.4f, 0));
+    class Program {
+        static float Lerp(float from, float to, float t) {
+            return from + (to - from) * t;
+        }
+
+        static float GetRandomFloat(Random random, float min = 0, float max = 1) {
+            return Lerp(min, max, (float)random.Next() / int.MaxValue);
+        }
         
-        private static Shape[] triangles = new Shape[] {triangle, triangle2};
+        static void FillSceneWithTriangles(Scene scene, Material material) {
+            var random = new Random();
+            for (var i = 0; i < 10; i++) {
+            var triangle = new Triangle(.2f, .2f, new Vector(-.4f, 0));
+            
+                triangle.Rotate(GetRandomFloat(random));
+                triangle.Move(new Vector(GetRandomFloat(random, -1, 1), GetRandomFloat(random, -1, 1)));
+                scene.Add(triangle);
+            }
+        }
         
         static void Main(string[] args) {
-            //screen rendering
-            var window = CreateWindow();
-            CreateShaderProgram();
+            
+            var window = new Window();
+            var material = new Material("shaders/position-color.vert", "shaders/vertex-color.frag");
+            var scene = new Scene();
+            window.Load(scene);
 
+            FillSceneWithTriangles(scene, material);
+            
             // engine rendering loop
             var direction = new Vector(0.003f, 0.003f);
             var multiplier = 0.99f;
-            var rotate = .5f;
-            while (!Glfw.WindowShouldClose(window)) {
-                foreach (var triangle in triangles)
-                {
-                    Glfw.PollEvents(); // react to window changes (position etc.)
-                    ClearScreen();
-                    Render(window);
+            var rotation = 0.05f;
+            while (window.IsOpen()) {
 
-                    triangle.Scale(multiplier);
-                    triangle.Rotate(rotate);
-                    multiplier = triangle.CurrenScalar(multiplier);
-                    direction = triangle.MoveDirect(direction);
+                // Update Triangles
+                for (var i = 0; i < scene.triangles.Count; i++) {
+                    var triangle = scene.triangles[i];
+                
+                    // 2. Keep track of the Scale, so we can reverse it
+                    if (triangle.CurrentScale <= 0.5f) {
+                        multiplier = 1.001f;
+                    }
+                    if (triangle.CurrentScale >= 1f) {
+                        multiplier = 0.999f;
+                    }
                     
+                    triangle.Scale(multiplier);
+                    triangle.Rotate(rotation);
+                
+                    // 4. Check the X-Bounds of the Screen
+                    if (triangle.GetMaxBounds().x >= 1 && direction.x > 0 || triangle.GetMinBounds().x <= -1 && direction.x < 0) {
+                        direction.x *= -1;
+                    }
+                
+                    // 5. Check the Y-Bounds of the Screen
+                    if (triangle.GetMaxBounds().y >= 1 && direction.y > 0 || triangle.GetMinBounds().y <= -1 && direction.y < 0) {
+                        direction.y *= -1;
+                    }
+                    
+                    
+                    triangle.Move(direction);
                 }
+                
+                window.Render();
             }
-        }
-
-        static void Render(Window window) {
-            triangle.Render();
-            triangle2.Render();
-            Glfw.SwapBuffers(window);
-        }
-
-        static void ClearScreen() {
-            glClearColor(.2f, .05f, .2f, 1);
-            glClear(GL_COLOR_BUFFER_BIT);
-        }
-
-        static void CreateShaderProgram() {
-            // create vertex shader
-            var vertexShader = glCreateShader(GL_VERTEX_SHADER);
-            glShaderSource(vertexShader, File.ReadAllText("shaders/position-color.vert"));
-            glCompileShader(vertexShader);
-
-            // create fragment shader
-            var fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-            glShaderSource(fragmentShader, File.ReadAllText("shaders/vertex-color.frag"));
-            glCompileShader(fragmentShader);
-
-            // create shader program - rendering pipeline
-            var program = glCreateProgram();
-            glAttachShader(program, vertexShader);
-            glAttachShader(program, fragmentShader);
-            glLinkProgram(program);
-            glUseProgram(program);
-        }
-        static Window CreateWindow() {
-            // initialize and configure
-            Glfw.Init();
-            Glfw.WindowHint(Hint.ClientApi, ClientApi.OpenGL);
-            Glfw.WindowHint(Hint.ContextVersionMajor, 3);
-            Glfw.WindowHint(Hint.ContextVersionMinor, 3);
-            Glfw.WindowHint(Hint.Decorated, true);
-            Glfw.WindowHint(Hint.OpenglProfile, Profile.Core);
-            Glfw.WindowHint(Hint.OpenglForwardCompatible, Constants.True);
-            Glfw.WindowHint(Hint.Doublebuffer, Constants.True);
-
-            // create and launch a window
-            var window = Glfw.CreateWindow(1360, 740, "SharpEngine", Monitor.None, Window.None);
-            Glfw.MakeContextCurrent(window);
-            Import(Glfw.GetProcAddress);
-            return window;
         }
     }
 }

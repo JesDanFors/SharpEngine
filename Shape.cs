@@ -7,12 +7,16 @@ using static OpenGL.Gl;
 namespace SharpEngine {
     public class Shape {
         protected Vertex[] vertices;
+        private uint vertexArray;
+        private uint vertexBuffer;
             
         public float CurrentScale { get; private set; }
-        //public float MoveDirection { get; private set; }
+
+        public Material material;
             
-        public Shape(Vertex[] vertices) {
+        public Shape(Vertex[] vertices, Material material) {
             this.vertices = vertices;
+            this.material = material;
             this.CurrentScale = 1f;
             LoadTriangleIntoBuffer();
         }
@@ -43,7 +47,7 @@ namespace SharpEngine {
             // the triangle moving around while scaling.
             // Then, we move it back again.
             var center = GetCenter();
-            Move(center*-1);
+            Move(-center);
             for (var i = 0; i < this.vertices.Length; i++) {
                 this.vertices[i].position *= multiplier;
             }
@@ -60,22 +64,27 @@ namespace SharpEngine {
 
         public unsafe void Render()
         {
+            this.material.Use();
+            glBindVertexArray(vertexArray);
+            glBindBuffer(GL_ARRAY_BUFFER, this.vertexBuffer);
             fixed (Vertex* vertex = &this.vertices[0]) {
-                glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this.vertices.Length, vertex, Gl.GL_DYNAMIC_DRAW);
+                glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * this.vertices.Length, vertex, GL_DYNAMIC_DRAW);
             }
             glDrawArrays(GL_TRIANGLES, 0, this.vertices.Length);
+            glBindVertexArray(0);
         }
 
         public unsafe void LoadTriangleIntoBuffer()
         {
-            var vertexArray = glGenVertexArray();
-            var vertexBuffer = glGenBuffer();
+            vertexArray = glGenVertexArray();
+            vertexBuffer = glGenBuffer();
             glBindVertexArray(vertexArray);
             glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
             glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), nameof(Vertex.position)));
             glVertexAttribPointer(1, 4, GL_FLOAT, false, sizeof(Vertex), Marshal.OffsetOf(typeof(Vertex), nameof(Vertex.color)));
             glEnableVertexAttribArray(0);
             glEnableVertexAttribArray(1);
+            glBindVertexArray(0);
         }
 
         public Vector MoveDirect(Vector MoveDirection)
@@ -117,21 +126,16 @@ namespace SharpEngine {
         public void Rotate(float degree)
         {
             var center = GetCenter();
-            Move(center * -1);
+            Move(-center);
             for (int i = 0; i < vertices.Length; i++)
             {
-                var currentAngle = MathF.Atan2(vertices[i].position.y, vertices[i].position.x);
-                var currentMagnitude = MathF.Sqrt(MathF.Pow(vertices[i].position.x, 2) + MathF.Pow(vertices[i].position.y, 2));
-                var newX = MathF.Cos(currentAngle + GetRadians(degree)) * currentMagnitude;
-                var newY = MathF.Sin(currentAngle + GetRadians(degree)) * currentMagnitude;
-                vertices[i].position = new Vector(newX, newY);
+                var currentRotation = Vector.Angle(this.vertices[i].position);
+                var distance = vertices[i].position.GetMagnitude();
+                var newX = MathF.Cos(currentRotation + degree);
+                var newY = MathF.Sin(currentRotation + degree);
+                vertices[i].position = new Vector(newX, newY) * distance;
             }
             Move(center);
-        }
-
-        private float GetRadians(float angle)
-        {
-            return angle * (MathF.PI / 180f);
         }
     }
 }
