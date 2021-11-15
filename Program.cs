@@ -14,8 +14,8 @@ namespace SharpEngine
         
         static void FillSceneWithTriangles(Scene scene, Material material) {
             var random = new Random();
-            for (var i = 0; i < 10; i++) {
-            var triangle = new Triangle(.2f, .2f, new Vector(-.4f, 0));
+            for (var i = 0; i < 1; i++) {
+                var triangle = new Triangle(.2f, .2f, new Vector(-.4f, 0));
             
                 triangle.Rotate(GetRandomFloat(random));
                 triangle.Move(new Vector(GetRandomFloat(random, -1, 1), GetRandomFloat(random, -1, 1)));
@@ -26,15 +26,14 @@ namespace SharpEngine
         static void Main(string[] args) {
             
             var window = new Window();
-            var material = new Material("shaders/position-color.vert", "shaders/vertex-color.frag");
+            var material = new Material("shaders/world-position-color.vert", "shaders/vertex-color.frag");
             var scene = new Scene();
             window.Load(scene);
-
             FillSceneWithTriangles(scene, material);
             
             // engine rendering loop
             var direction = new Vector(0.003f, 0.003f);
-            var multiplier = 0.99f;
+            var multiplier = 0.9999f;
             var rotation = 0.05f;
             while (window.IsOpen()) {
 
@@ -51,7 +50,7 @@ namespace SharpEngine
                     }
                     
                     triangle.Scale(multiplier);
-                    triangle.Rotate(rotation);
+                    //triangle.Rotate(rotation);
                 
                     // 4. Check the X-Bounds of the Screen
                     if (triangle.GetMaxBounds().x >= 1 && direction.x > 0 || triangle.GetMinBounds().x <= -1 && direction.x < 0) {
