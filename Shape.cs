@@ -56,9 +56,12 @@ namespace SharpEngine {
             this.CurrentScale *= multiplier;
         }
 
-        public void Move(Vector direction) {
-            for (var i = 0; i < this.vertices.Length; i++) {
-                this.vertices[i].position += direction;
+        public void Move(Vector direction)
+        {
+            Matrix matrix = Matrix.Identity;
+            for (var i = 0; i < this.vertices.Length; i++)
+            {
+                this.vertices[i].position = matrix * this.vertices[i].position;
             }
         }
 
