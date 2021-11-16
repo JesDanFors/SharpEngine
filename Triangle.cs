@@ -1,15 +1,24 @@
-﻿using System.Buffers.Text;
+﻿using System;
 
 namespace SharpEngine
 {
     public class Triangle : Shape
     {
-        public Triangle(float width, float height, Vector position) : base(new Vertex[3], new Material("shaders/position-color.vert", "shaders/vertex-color.frag") )
+        public Triangle(Material material) : base(CreateTriangle(), material)
         {
-            vertices[0] = new Vertex(new Vector(position.x - width / 2, position.y - height / 2), Color.Red);
-            vertices[1] = new Vertex(new Vector(position.x + width / 2, position.y - height / 2), Color.Green);
-            vertices[2] = new Vertex(new Vector(position.x, position.y + height / 2), Color.Blue);
-            
+        }
+
+        static Vertex[] CreateTriangle()
+        {
+            const float scale = .1f;
+            float height = MathF.Sqrt(0.75f) * scale;
+            return new Vertex[]
+            {
+                new Vertex(new Vector(-scale, -height / 2), Color.Red),
+                new Vertex(new Vector(scale, -height / 2), Color.Green),
+                new Vertex(new Vector(0f, height), Color.Blue)
+            };
         }
     }
 }
+    
