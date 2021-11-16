@@ -17,8 +17,8 @@ namespace SharpEngine
             for (var i = 0; i < 1; i++) {
                 var triangle = new Triangle(.2f, .2f, new Vector(-.4f, 0));
             
-                triangle.Rotate(GetRandomFloat(random));
-                triangle.Move(new Vector(GetRandomFloat(random, -1, 1), GetRandomFloat(random, -1, 1)));
+                triangle.Transform.Rotate(GetRandomFloat(random));
+                triangle.Transform.Move(new Vector(GetRandomFloat(random, -1, 1), GetRandomFloat(random, -1, 1)));
                 scene.Add(triangle);
             }
         }
@@ -42,28 +42,32 @@ namespace SharpEngine
                     var triangle = scene.triangles[i];
                 
                     // 2. Keep track of the Scale, so we can reverse it
-                    if (triangle.CurrentScale <= 0.5f) {
+                    if (triangle.Transform.CurrentScale.GetMagnitude() <= 0.5f) {
                         multiplier = 1.001f;
                     }
-                    if (triangle.CurrentScale >= 1f) {
+                    if (triangle.Transform.CurrentScale.GetMagnitude() >= 2f) {
                         multiplier = 0.999f;
                     }
                     
-                    triangle.Scale(multiplier);
-                    //triangle.Rotate(rotation);
+                    triangle.Transform.Scale(multiplier);
+                    triangle.Transform.Rotate(rotation);
                 
                     // 4. Check the X-Bounds of the Screen
-                    if (triangle.GetMaxBounds().x >= 1 && direction.x > 0 || triangle.GetMinBounds().x <= -1 && direction.x < 0) {
+                    if (triangle.GetMaxBounds().x >= 1 && direction.x > 0 
+                        || triangle.GetMinBounds().x <= -1 && direction.x < 0) 
+                    {
                         direction.x *= -1;
                     }
                 
                     // 5. Check the Y-Bounds of the Screen
-                    if (triangle.GetMaxBounds().y >= 1 && direction.y > 0 || triangle.GetMinBounds().y <= -1 && direction.y < 0) {
+                    if (triangle.GetMaxBounds().y >= 1 && direction.y > 0 
+                        || triangle.GetMinBounds().y <= -1 && direction.y < 0) 
+                    {
                         direction.y *= -1;
                     }
                     
                     
-                    triangle.Move(direction);
+                    triangle.Transform.Move(direction);
                 }
                 
                 window.Render();

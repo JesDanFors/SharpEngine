@@ -7,22 +7,19 @@ using static OpenGL.Gl;
 namespace SharpEngine {
     public class Shape {
         protected Vertex[] vertices;
-        Matrix transform = Matrix.Identity;
         private uint vertexArray;
         private uint vertexBuffer;
-            
-        public float CurrentScale { get; private set; }
-
         public Material material;
+        public Transform Transform { get; }
             
         public Shape(Vertex[] vertices, Material material) {
             this.vertices = vertices;
             this.material = material;
-            this.CurrentScale = 1f;
             LoadTriangleIntoBuffer();
+            this.Transform = new Transform();
         }
         public Vector GetMinBounds() {
-            var min = this.vertices[0].position;
+            var min = this.Transform.Matrix * this.vertices[0].position; //check this
             for (var i = 1; i < this.vertices.Length; i++) {
                 min = Vector.Min(min, this.vertices[i].position);
             }
@@ -31,7 +28,7 @@ namespace SharpEngine {
         }
             
         public Vector GetMaxBounds() {
-            var max = this.vertices[0].position;
+            var max = this.Transform.Matrix * this.vertices[0].position;
             for (var i = 1; i < this.vertices.Length; i++) {
                 max = Vector.Max(max, this.vertices[i].position);
             }
@@ -43,24 +40,10 @@ namespace SharpEngine {
             return (GetMinBounds() + GetMaxBounds()) / 2;
         }
 
-        public void Move(Vector direction)
-        {
-            this.transform *= Matrix.Translation(direction);
-        }
-
-        public void Scale(float magnitude)
-        {
-            
-        }
-        public void Rotate(float degree)
-        {
-            
-        }
-
         public unsafe void Render()
         {
             this.material.Use();
-            this.material.SetTransform(this.transform);
+            this.material.SetTransform(this.Transform.Matrix);
             glBindVertexArray(vertexArray);
             glBindBuffer(GL_ARRAY_BUFFER, this.vertexBuffer);
             fixed (Vertex* vertex = &this.vertices[0]) {

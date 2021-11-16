@@ -1,4 +1,5 @@
-﻿using System.Buffers.Text;
+﻿using System;
+using System.Buffers.Text;
 using System.ComponentModel.DataAnnotations;
 
 namespace SharpEngine
@@ -69,6 +70,41 @@ namespace SharpEngine
             newMatrix.m22 = v.y;
             newMatrix.m33 = v.z;
             return newMatrix;
+        }
+
+        static Matrix RotatationX(float x)
+        {
+            var result = Identity;
+            result.m22 = MathF.Cos(x);
+            result.m23 = -MathF.Sin(x);
+            result.m32 = MathF.Sin(x);
+            result.m33 = MathF.Cos(x);
+            return result;
+        }
+        
+        static Matrix RotatationY(float y)
+        {
+            var result = Identity;
+            result.m11 = MathF.Cos(y);
+            result.m31 = -MathF.Sin(y);
+            result.m13 = MathF.Sin(y);
+            result.m33 = MathF.Cos(y);
+            return result;
+        }
+        
+        static Matrix RotatationZ(float z)
+        {
+            var result = Identity;
+            result.m11 = MathF.Cos(z);
+            result.m12 = -MathF.Sin(z);
+            result.m21 = MathF.Sin(z);
+            result.m22 = MathF.Cos(z);
+            return result;
+        }
+
+        public static Matrix Rotation(Vector rotation)
+        {
+            return RotatationZ(rotation.z) * RotatationY(rotation.y) * RotatationX(rotation.x);
         }
     }
 }
