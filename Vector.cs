@@ -63,5 +63,10 @@ namespace SharpEngine {
             float magnitude = GetMagnitude();
             return magnitude > 0 ? this / GetMagnitude() : this;
         }
+
+        public static float Dot(Vector a, Vector b)
+        {
+            return a.x * b.x + a.y * b.y + a.z * b.z;
+        }
     }
 }

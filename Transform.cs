@@ -14,10 +14,10 @@ namespace SharpEngine {
 
         public Matrix Matrix => Matrix.Translation(Position) * Matrix.Rotation(Rotation) * Matrix.Scale(CurrentScale);
 
-        public Vector Forward => Matrix * Vector.Forward - Matrix * Vector.Zero;
-        public Vector Backwards => Matrix * Vector.Backwards - Matrix * Vector.Zero;
-        public Vector Left => Matrix * Vector.Left - Matrix * Vector.Zero;
-        public Vector Right => Matrix * Vector.Right - Matrix * Vector.Zero;
+        public Vector Forward => Matrix.Transform(Matrix, Vector.Forward, 0);
+        public Vector Backwards => Matrix.Transform(Matrix, Vector.Backwards, 0);
+        public Vector Left => Matrix.Transform(Matrix, Vector.Left, 0);
+        public Vector Right => Matrix.Transform(Matrix, Vector.Right, 0);
 
         public Transform()
         {

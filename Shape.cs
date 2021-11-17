@@ -10,6 +10,23 @@ namespace SharpEngine {
 
 		public Transform Transform { get; }
 		public Material material;
+		float mass;
+		float massInverse;
+		public Vector velocity;
+		public Vector LinearForce;
+		public float gravityScale = 1f;
+
+		public float Mass
+		{
+			get => this.mass;
+			set
+			{
+				this.mass = value;
+				this.massInverse = float.IsPositiveInfinity(value) ? 0f : 1f / value;
+			}
+		}
+
+		public float MassInverse => this.massInverse;
 
 		public Shape(Vertex[] vertices, Material material) {
 			this.vertices = vertices;
@@ -61,6 +78,13 @@ namespace SharpEngine {
 			}
 			glDrawArrays(GL_TRIANGLES, 0, this.vertices.Length);
 			glBindVertexArray(0);
+		}
+
+		public void SetColor(Color color)
+		{
+			for (int i = 0; i < this.vertices.Length; i++) {
+				vertices[i].color = color;
+			}
 		}
 	}
 } 
