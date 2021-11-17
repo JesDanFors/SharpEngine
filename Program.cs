@@ -21,21 +21,16 @@ namespace SharpEngine
             var physics = new Physics(scene);
             window.Load(scene);
 
-            var shape = new Triangle(material);
-            shape.Transform.CurrentScale = new Vector(0.5f, 1f, 1f);
-            scene.Add(shape);
-
             var circle = new Circle(material);
             circle.Transform.Position = Vector.Left;
             circle.velocity = Vector.Right * 0.3f;
             scene.Add(circle);
             
-            var square = new Rectangle(material);
-            square.Transform.Position = Vector.Left + Vector.Backwards * 0.2f;
-            square.LinearForce = Vector.Right * 0.3f;
-            scene.Add(square);
+            var circle2 = new Circle(material);
+            circle2.Transform.Position = Vector.Right * 0.5f;
+            scene.Add(circle2);
             
-            
+            //ground
             var ground = new Rectangle(material);
             ground.Transform.CurrentScale = new Vector(10f, 1f, 1f);
             ground.Transform.Position = new Vector(0f, -1f);
