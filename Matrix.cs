@@ -40,7 +40,8 @@ namespace SharpEngine
         }
         public static Matrix operator *(Matrix a, Matrix b)
         {
-            return new Matrix(b.m11*a.m11+b.m21*a.m12+b.m31*a.m13+b.m41*a.m14,
+            return new Matrix(
+                b.m11*a.m11+b.m21*a.m12+b.m31*a.m13+b.m41*a.m14,
                 b.m12*a.m11+b.m22*a.m12+b.m32*a.m13+b.m42*a.m14,
                 b.m13*a.m11+b.m23*a.m12+b.m33*a.m13+b.m43*a.m14,
                 b.m14*a.m11+b.m24*a.m12+b.m34*a.m13+b.m44*a.m14,
@@ -60,6 +61,18 @@ namespace SharpEngine
                 b.m13*a.m41+b.m23*a.m42+b.m33*a.m43+b.m43*a.m44,
                 b.m14*a.m41+b.m24*a.m42+b.m34*a.m43+b.m44*a.m44
                 );
+        }
+        
+        public static Matrix Perspective(float fov, float aspectRatio, float nearPlane, float farPlane)
+        {
+            float yScale = 1.0f / MathF.Tan(fov * 0.5f);
+            float xScale = yScale / aspectRatio;
+            float Q = farPlane / (farPlane - nearPlane);
+
+            return new Matrix(xScale, 0.0f, 0.0f, 0.0f,
+                0.0f, yScale, 0.0f, 0.0f,
+                0.0f, 0.0f, Q, Q * nearPlane,
+                0.0f, 0f, -1f, 0.0f);
         }
 
         public static Matrix Translation(Vector v)

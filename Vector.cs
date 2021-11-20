@@ -67,8 +67,9 @@ namespace SharpEngine {
 			return MathF.Sqrt(GetSquareMagnitude());
 		}
 
-		public float GetSquareMagnitude() {
-			return x * x + y * y + z * z;
+		public float GetSquareMagnitude()
+		{
+			return Dot(this, this);
 		}
 
 		public Vector Normalize() {
